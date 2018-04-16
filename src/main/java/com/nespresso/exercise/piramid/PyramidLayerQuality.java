@@ -2,20 +2,20 @@ package com.nespresso.exercise.piramid;
 
 enum PyramidLayerQuality
 {
-  HIGH
-  {
-    @Override
-    char print()
-    {
-      return 'X';
-    }
-  },
   LOW
   {
     @Override
     char print()
     {
       return 'V';
+    }
+  },
+  HIGH
+  {
+    @Override
+    char print()
+    {
+      return 'X';
     }
   };
   

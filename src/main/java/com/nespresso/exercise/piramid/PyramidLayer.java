@@ -1,8 +1,9 @@
 package com.nespresso.exercise.piramid;
 
 import java.util.Collections;
+import java.util.Comparator;
 
-final class PyramidLayer
+final class PyramidLayer implements Comparable<PyramidLayer>
 {
   private final int slaves;
   private final int anks;
@@ -31,10 +32,11 @@ final class PyramidLayer
     
     return String.format("%s%s%s%s%s", spaces, underscores, String.join("", Collections.nCopies(size(), String.valueOf(quality.print()))), underscores, spaces);
   }
-  
-  public boolean willCollapseWith(final PyramidLayer otherLayer)
+
+  @Override
+  public int compareTo(PyramidLayer otherLayer)
   {
-    return size() >= otherLayer.size() && quality == otherLayer.quality;
+    return Comparator.comparing(PyramidLayer::size).thenComparing(layer -> layer.quality).compare(this, otherLayer);
   }
 
   public static PyramidLayer of(final Integer slaves, final Integer anks)

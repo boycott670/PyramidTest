@@ -30,7 +30,7 @@ public final class Pyramid
   {
     final PyramidLayer layer = pyramidLayerParser.apply(pyramidLayer);
     
-    if (!layers.isEmpty() && layer.willCollapseWith(layers.peekLast()))
+    if (!layers.isEmpty() && layer.compareTo(layers.peekLast()) >= 0)
     {
       layers.removeLast();
     }
