@@ -18,22 +18,13 @@ public final class Pyramid
   public void addLayer(final String layer)
   {
     final PyramidLayer layerToAdd = pyramidLayerParser.parse(layer);
-    
-    if (layers.isEmpty())
+
+    if (!layers.empty() && layerToAdd.collapseWithExisting(layers.peek()))
     {
-      layers.push(layerToAdd);
+      layers.pop();
     }
-    else
-    {
-       final PyramidLayer topLayer = layers.peek();
-       
-       if (layerToAdd.collapseWithExisting(topLayer))
-       {
-         layers.pop();
-       }
-       
-       layers.push(layerToAdd);
-    }
+
+    layers.push(layerToAdd);
   }
 
   public String print()

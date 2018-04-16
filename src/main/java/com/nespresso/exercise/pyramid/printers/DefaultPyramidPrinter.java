@@ -30,17 +30,17 @@ public final class DefaultPyramidPrinter implements PyramidPrinter
     {
       if (previousLayer == null)
       {
-        baseSize = currentLayer.numberOfCharsToDisplay();
+        baseSize = currentLayer.size();
 
         printLines.add(repeat(currentLayer.charToPrint(), baseSize));
       }
       else
       {
-        final int numberOfUnderscores = previousLayer.numberOfCharsToDisplay() - currentLayer.numberOfCharsToDisplay();
-        final int numberOfSpaces = baseSize - (numberOfUnderscores + currentLayer.numberOfCharsToDisplay());
+        final int numberOfUnderscores = previousLayer.size() - currentLayer.size();
+        final int numberOfSpaces = baseSize - (numberOfUnderscores + currentLayer.size());
 
         printLines.add(String.format("%s%s%s%s%s", repeat(' ', numberOfSpaces / 2), repeat('_', numberOfUnderscores / 2),
-            repeat(currentLayer.charToPrint(), currentLayer.numberOfCharsToDisplay()), repeat('_', numberOfUnderscores / 2),
+            repeat(currentLayer.charToPrint(), currentLayer.size()), repeat('_', numberOfUnderscores / 2),
             repeat(' ', numberOfSpaces / 2)));
       }
 

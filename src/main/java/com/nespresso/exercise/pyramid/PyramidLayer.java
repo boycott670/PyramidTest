@@ -34,11 +34,6 @@ public class PyramidLayer
     return type.toChar();
   }
 
-  public int numberOfCharsToDisplay()
-  {
-    return size();
-  }
-
   public boolean collapseWithExisting(PyramidLayer existingLayer)
   {
     return size() >= existingLayer.size() && type == existingLayer.type;
