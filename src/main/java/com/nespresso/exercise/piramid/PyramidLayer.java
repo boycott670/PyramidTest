@@ -3,44 +3,44 @@ package com.nespresso.exercise.piramid;
 import java.util.Collections;
 import java.util.Comparator;
 
-final class PyramidLayer implements Comparable<PyramidLayer>
+final class PyramidLayer
 {
-  private final int slaves;
-  private final int anks;
-  private final PyramidLayerQuality quality;
+  private static final String UNDERSCORE = "_";
+  private static final String SPACE = " ";
   
-  private PyramidLayer(int slaves, int anks)
-  {
-    this.slaves = slaves;
-    this.anks = anks;
-    
-    quality = PyramidLayerQuality.ofFactor(this.anks / size());
-  }
+  private final int size;
+  private final boolean isHighQuality;
   
-  private int size()
+  PyramidLayer(int size, boolean isHighQuality)
   {
-    return slaves / 50;
-  }
-  
-  public String print(final PyramidLayer baseLayer, final PyramidLayer previousLayer)
-  {
-    final int numberOfUnderscores = previousLayer.size() - size();
-    final int numberOfSpaces = baseLayer.size() - (numberOfUnderscores + size());
-    
-    final String underscores = String.join("", Collections.nCopies(numberOfUnderscores / 2, "_"));
-    final String spaces = String.join("", Collections.nCopies(numberOfSpaces / 2, " "));
-    
-    return String.format("%s%s%s%s%s", spaces, underscores, String.join("", Collections.nCopies(size(), String.valueOf(quality.print()))), underscores, spaces);
+    this.size = size;
+    this.isHighQuality = isHighQuality;
   }
 
-  @Override
-  public int compareTo(PyramidLayer otherLayer)
+  private String printBlock()
   {
-    return Comparator.comparing(PyramidLayer::size).thenComparing(layer -> layer.quality).compare(this, otherLayer);
+    return isHighQuality ? "X" : "V";
   }
-
-  public static PyramidLayer of(final Integer slaves, final Integer anks)
+  
+  private int byHalf(final int number)
   {
-    return new PyramidLayer(slaves, anks);
+    return number / 2;
+  }
+  
+  String print(final PyramidLayer baseLayer, final PyramidLayer previousLayer)
+  {
+    final int numberOfUnderscores = previousLayer.size - size;
+    final int numberOfSpaces = baseLayer.size - (numberOfUnderscores + size);
+    
+    final String underscores = String.join("", Collections.nCopies(byHalf(numberOfUnderscores), UNDERSCORE));
+    final String spaces = String.join("", Collections.nCopies(byHalf(numberOfSpaces), SPACE));
+    final String blocks = String.join("", Collections.nCopies(size, printBlock()));
+    
+    return String.format("%s%s%s%s%s", spaces, underscores, blocks, underscores, spaces);
+  }
+  
+  boolean willCollapseWith(final PyramidLayer existingLayer)
+  {
+    return Comparator.<PyramidLayer, Integer>comparing(layer -> layer.size).<Boolean>thenComparing(layer -> layer.isHighQuality).compare(this, existingLayer) >= 0;
   }
 }

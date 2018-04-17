@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 public final class Pyramid
 {
+  private static final int SLAVES_TO_SIZE_FACTOR = 50;
+  private static final int HIGH_QUALITY_THRESHOLD = 2;
+  
   private static final Function<? super String, ? extends PyramidLayer> pyramidLayerParser = pyramidLayer ->
   {
     final Matcher matcher = Pattern.compile("^(\\d+) Slaves, (\\d+) Anks$").matcher(pyramidLayer);
@@ -21,7 +24,12 @@ public final class Pyramid
       throw new IllegalArgumentException("Invalid layer structure");
     }
 
-    return PyramidLayer.of(Integer.valueOf(matcher.group(1)), Integer.valueOf(matcher.group(2)));
+    final int slaves = Integer.valueOf(matcher.group(1));
+    final int anks = Integer.valueOf(matcher.group(2));
+    
+    final int size = slaves / SLAVES_TO_SIZE_FACTOR;
+    
+    return new PyramidLayer(size, anks / size >= HIGH_QUALITY_THRESHOLD);
   };
   
   private final Deque<PyramidLayer> layers = new ArrayDeque<>();
@@ -30,7 +38,7 @@ public final class Pyramid
   {
     final PyramidLayer layer = pyramidLayerParser.apply(pyramidLayer);
     
-    if (!layers.isEmpty() && layer.compareTo(layers.peekLast()) >= 0)
+    if (!layers.isEmpty() && layer.willCollapseWith(layers.peekLast()))
     {
       layers.removeLast();
     }
