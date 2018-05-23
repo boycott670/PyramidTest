@@ -2,71 +2,50 @@ package com.nespresso.exercise.piramid;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.PrimitiveIterator.OfInt;
 
-public final class Pyramid
+final class Pyramid
 {
-  private static final int SLAVES_TO_SIZE_FACTOR = 50;
-  private static final int HIGH_QUALITY_THRESHOLD = 2;
+  private final List<PyramidLayer> layers = new ArrayList<>();
   
-  private static final Function<? super String, ? extends PyramidLayer> pyramidLayerParser = pyramidLayer ->
+  void addLayer(final String layerDescription)
   {
-    final Matcher matcher = Pattern.compile("^(\\d+) Slaves, (\\d+) Anks$").matcher(pyramidLayer);
-
-    if (!matcher.find())
+    final OfInt tokens = Arrays.stream(layerDescription.split("\\s+")).filter(token -> token.matches("\\d+")).mapToInt(Integer::parseInt).iterator();
+    
+    final int slaves = tokens.nextInt();
+    final int anks = tokens.nextInt();
+    
+    final PyramidLayer toAdd = new PyramidLayer(slaves, anks);
+    
+    if (toAdd.willCollapseWithExisting(new ArrayDeque<>(layers).pollLast()))
     {
-      throw new IllegalArgumentException("Invalid layer structure");
+      layers.set(layers.size() - 1, toAdd);
     }
-
-    final int slaves = Integer.valueOf(matcher.group(1));
-    final int anks = Integer.valueOf(matcher.group(2));
-    
-    final int size = slaves / SLAVES_TO_SIZE_FACTOR;
-    
-    return new PyramidLayer(size, anks / size >= HIGH_QUALITY_THRESHOLD);
-  };
-  
-  private final Deque<PyramidLayer> layers = new ArrayDeque<>();
-  
-  public void addLayer(final String pyramidLayer)
-  {
-    final PyramidLayer layer = pyramidLayerParser.apply(pyramidLayer);
-    
-    if (!layers.isEmpty() && layer.willCollapseWith(layers.peekLast()))
+    else
     {
-      layers.removeLast();
+      layers.add(toAdd);
     }
-    
-    layers.addLast(layer);
   }
   
-  public String print()
+  String print()
   {
-    final Deque<? extends PyramidLayer> layers = new ArrayDeque<>(this.layers);
-    final List<String> printContent = new ArrayList<>();
+    final Collection<String> report = new ArrayList<>();
     
-    PyramidLayer baseLayer = null, previousLayer = null, currentLayer;
-    
-    while ((currentLayer = layers.pollFirst()) != null)
+    for (int pyramidLayerIndex = 0 ; pyramidLayerIndex < layers.size() ; pyramidLayerIndex ++)
     {
-      if (previousLayer == null)
+      if (pyramidLayerIndex > 0)
       {
-        baseLayer = currentLayer;
+        report.add(layers.get(pyramidLayerIndex).print(layers.get(0), layers.get(pyramidLayerIndex - 1)));
       }
-      
-      printContent.add(currentLayer.print(baseLayer, previousLayer == null ? currentLayer : previousLayer));
-      
-      previousLayer = currentLayer;
+      else
+      {
+        report.add(layers.get(pyramidLayerIndex).print(null, null));
+      }
     }
     
-    Collections.reverse(printContent);
-    
-    return printContent.stream().collect(Collectors.joining("\n"));
+    return String.join("\n", (Iterable<String>)(() -> new ArrayDeque<>(report).descendingIterator()));
   }
 }
